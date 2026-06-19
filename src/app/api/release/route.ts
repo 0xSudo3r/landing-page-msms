@@ -13,7 +13,7 @@ export async function GET() {
   }
 
   try {
-    const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN || undefined;
+    const token = process.env.GITHUB_TOKEN || process.env.NEXT_PUBLIC_GITHUB_TOKEN;
     const data = await fetchLatestRelease(token);
     cached = { data, timestamp: Date.now() };
 

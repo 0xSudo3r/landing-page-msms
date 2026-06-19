@@ -36,6 +36,12 @@ export function DownloadButton() {
     fetchRelease();
   }, []);
 
+  const handleDownload = () => {
+    if (state.status === "loaded") {
+      window.location.href = `/api/download?url=${encodeURIComponent(state.data.downloadUrl)}`;
+    }
+  };
+
   if (state.status === "loading") {
     return (
       <div className="inline-flex h-14 items-center justify-center gap-3 rounded-full bg-zinc-900 border border-zinc-800 px-8 text-base font-bold text-zinc-500 shadow-sm animate-pulse w-[250px]">
@@ -66,15 +72,13 @@ export function DownloadButton() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <a
-        href={data.downloadUrl}
-        target="_blank"
-        rel="noopener noreferrer"
+      <button
+        onClick={handleDownload}
         className="inline-flex h-14 items-center justify-center gap-3 rounded-full bg-white px-8 text-base font-bold text-black transition-all hover:bg-zinc-200 active:scale-95 focus:ring-4 focus:ring-white/20 outline-none"
       >
         <Download className="h-5 w-5" />
         <span>تنزيل للويندوز</span>
-      </a>
+      </button>
       <div className="flex items-center gap-3 text-sm font-medium text-zinc-600 font-mono tracking-wider" dir="ltr">
         <span>{data.version}</span>
         {fileSize && (
