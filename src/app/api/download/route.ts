@@ -19,14 +19,19 @@ export async function GET(request: Request) {
 
   try {
     console.log("Downloading from:", url);
+    console.log("Token present:", !!token);
+    console.log("Token starts with:", token.substring(0, 6) + "...");
+    
     const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `token ${token}`,
         Accept: "application/octet-stream",
       },
+      redirect: "follow",
     });
 
     console.log("GitHub response status:", response.status);
+    console.log("GitHub response headers:", Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "Unknown error");
