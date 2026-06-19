@@ -18,20 +18,56 @@ export async function GET(request: Request) {
   }
 
   try {
-    console.log("Downloading from:", url);
-    console.log("Token present:", !!token);
-    console.log("Token starts with:", token.substring(0, 6) + "...");
+    console.log("Step 1: Getting download URL from GitHub API");
+    console.log("Original URL:", url);
     
     const response = await fetch(url, {
       headers: {
         Authorization: `token ${token}`,
         Accept: "application/octet-stream",
       },
-      redirect: "follow",
+      redirect: "manual",
     });
 
-    console.log("GitHub response status:", response.status);
-    console.log("GitHub response headers:", Object.fromEntries(response.headers.entries()));
+    console.log("Step 2: GitHub response status:", response.status);
+    console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
+    if (response.status === 302 || response.status === 301) {
+      const redirectUrl = response.headers.get("location");
+      console.log("Step 3: Redirect URL:", redirectUrl);
+      
+      if (!redirectUrl) {
+        throw new Error("No redirect URL provided");
+      }
+
+      console.log("Step 4: Fetching from redirect URL");
+      const downloadResponse = await fetch(redirectUrl, {
+        headers: {
+          Accept: "application/octet-stream",
+        },
+      });
+
+      console.log("Step 5: Download response status:", downloadResponse.status);
+
+      if (!downloadResponse.ok) {
+        throw new Error(`Download failed with status ${downloadResponse.status}`);
+      }
+
+      const contentLength = downloadResponse.headers.get("content-length");
+      const contentType = downloadResponse.headers.get("content-type") || "application/octet-stream";
+
+      const headers = new Headers();
+      headers.set("Content-Type", contentType);
+      headers.set("Content-Disposition", `attachment; filename="MobileShopManager-Setup-${version}.exe"`);
+      if (contentLength) {
+        headers.set("Content-Length", contentLength);
+      }
+
+      return new NextResponse(downloadResponse.body, {
+        status: 200,
+        headers,
+      });
+    }
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "Unknown error");
