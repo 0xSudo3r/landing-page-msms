@@ -38,7 +38,8 @@ export function DownloadButton() {
 
   const handleDownload = () => {
     if (state.status === "loaded") {
-      window.location.href = `/api/download?url=${encodeURIComponent(state.data.downloadUrl)}`;
+      const version = state.data.version.replace(/^v/, "");
+      window.location.href = `/api/download?url=${encodeURIComponent(state.data.downloadUrl)}&version=${version}`;
     }
   };
 
